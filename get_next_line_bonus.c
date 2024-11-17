@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ahouass <ahouass@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 12:25:04 by ahouass           #+#    #+#             */
-/*   Updated: 2024/11/17 16:47:55 by ahouass          ###   ########.fr       */
+/*   Updated: 2024/11/17 16:42:49 by ahouass          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 void	split_line(char *full_line, int i, char **line, char **saved_line)
 {
@@ -93,15 +93,15 @@ char	*get_next_line(int fd)
 	char		*line;
 	char		*buffer;
 	char		*full_line;
-	static char	*saved_line;
+	static char	*saved_line[1024];
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	buffer = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buffer)
 		return (NULL);
-	full_line = ft_get_line(fd, buffer, saved_line);
+	full_line = ft_get_line(fd, buffer, saved_line[fd]);
 	free(buffer);
-	ft_extract_line(full_line, &saved_line, &line);
+	ft_extract_line(full_line, &saved_line[fd], &line);
 	return (line);
 }
