@@ -6,7 +6,7 @@
 /*   By: ahouass <ahouass@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 12:25:04 by ahouass           #+#    #+#             */
-/*   Updated: 2024/11/17 16:47:55 by ahouass          ###   ########.fr       */
+/*   Updated: 2024/11/19 16:15:22 by ahouass          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void	split_line(char *full_line, int i, char **line, char **saved_line)
 {
 	*line = ft_substr(full_line, 0, i + 1);
 	*saved_line = ft_substr(full_line, i + 1, ft_strlen(full_line) - (i + 1));
-	if (!*line || !*saved_line) // Check for malloc failures
+	if (!*line || !*saved_line)
 	{
 		free(*line);
 		free(*saved_line);
@@ -29,7 +29,7 @@ void	ft_extract_line(char *full_line, char **saved_line, char **line)
 {
 	int	i;
 
-	if (!full_line || !*full_line) // Handle empty or NULL full_line
+	if (!full_line || !*full_line)
 	{
 		*line = NULL;
 		*saved_line = NULL;
@@ -41,8 +41,8 @@ void	ft_extract_line(char *full_line, char **saved_line, char **line)
 	{
 		if (full_line[i] == '\n')
 		{
-			split_line(full_line, i, line, saved_line); // Use helper function
-			free(full_line); // Free full_line after extracting
+			split_line(full_line, i, line, saved_line);
+			free(full_line);
 			return ;
 		}
 		i++;
@@ -61,7 +61,7 @@ char	*update_saved_line(char *saved_line, char *buffer)
 	tmp = saved_line;
 	saved_line = ft_strjoin(tmp, buffer);
 	free(tmp);
-	if (!saved_line) // Check malloc failure
+	if (!saved_line)
 		return (NULL);
 	return (saved_line);
 }
@@ -70,16 +70,19 @@ char	*ft_get_line(int fd, char *buffer, char *saved_line)
 {
 	int		bytes_read;
 
-	while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0)
+	while (1)
 	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read <= 0)
+			break ;
 		buffer[bytes_read] = '\0';
 		saved_line = update_saved_line(saved_line, buffer);
-		if (!saved_line) // Check malloc failure
+		if (!saved_line)
 			return (NULL);
 		if (ft_strchr(buffer, '\n'))
 			break ;
 	}
-	if (bytes_read < 0) // Handle read errors
+	if (bytes_read < 0)
 	{
 		free(saved_line);
 		saved_line = NULL;
@@ -99,7 +102,11 @@ char	*get_next_line(int fd)
 		return (NULL);
 	buffer = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buffer)
+	{
+		free(saved_line);
+		saved_line = NULL;
 		return (NULL);
+	}
 	full_line = ft_get_line(fd, buffer, saved_line);
 	free(buffer);
 	ft_extract_line(full_line, &saved_line, &line);
